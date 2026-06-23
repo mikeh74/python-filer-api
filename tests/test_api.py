@@ -56,3 +56,17 @@ class FilerImageApiTests(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_requires_authentication(self):
+        response = self.client.post(
+            reverse("python-filer-api:image-list"),
+            {"original_filename": "blocked.jpg", "file": self._sample_file()},
+            format="multipart",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_requires_authentication(self):
+        response = self.client.delete(
+            reverse("python-filer-api:image-detail", kwargs={"pk": self.image.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
