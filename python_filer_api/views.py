@@ -6,6 +6,6 @@ from python_filer_api.serializers import FilerImageSerializer
 
 
 class FilerImageViewSet(ModelViewSet):
-    queryset = Image.objects.all().order_by("id")
+    queryset = Image.objects.all().order_by("-uploaded_at", "-id")
     serializer_class = FilerImageSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]

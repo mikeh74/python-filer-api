@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 
 class FilerImageApiTests(APITestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(username="api-user")
+        self.user = get_user_model().objects.create_user(username="api_user")
         self.image = Image.objects.create(
             original_filename="test.jpg",
             file=self._sample_file(),
@@ -64,6 +64,20 @@ class FilerImageApiTests(APITestCase):
             format="multipart",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_creates_image_when_authenticated(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(
+            reverse("python-filer-api:image-list"),
+            {
+                "original_filename": "new.jpg",
+                "file": self._sample_file(),
+                "default_alt_text": "New alt",
+            },
+            format="multipart",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Image.objects.filter(pk=response.data["id"]).exists())
 
     def test_delete_requires_authentication(self):
         response = self.client.delete(
