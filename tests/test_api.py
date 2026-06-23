@@ -40,3 +40,19 @@ class FilerImageApiTests(APITestCase):
         self.image.refresh_from_db()
         self.assertEqual(self.image.default_alt_text, "Updated alt")
         self.assertEqual(self.image.default_caption, "Updated caption")
+
+    def test_retrieve_image_returns_single_object(self):
+        response = self.client.get(
+            reverse("python-filer-api:image-detail", kwargs={"pk": self.image.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.image.id)
+        self.assertEqual(response.data["default_caption"], "Existing caption")
+
+    def test_patch_requires_authentication(self):
+        response = self.client.patch(
+            reverse("python-filer-api:image-detail", kwargs={"pk": self.image.pk}),
+            {"default_alt_text": "Blocked update"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
